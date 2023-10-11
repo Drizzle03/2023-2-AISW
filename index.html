@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>AI 개발과 실습</title>
+        <title>Newnya Website</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="assets/img/CAT.ico" />
         <!-- Font Awesome icons (free version)-->
@@ -144,19 +144,40 @@
         
                 <div class="text-center" style="gap: 20px; font-size: 0.9rem;">
                     <label for="promptInput" style="display: block; margin-bottom: 15px;">Enter the picture you want to draw in the prompt below. (Takes 5s creation time) </label>
-                    <input style="border-radius: 5px; padding: 5px 10px; border: 1px solid #ccc; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; width: 70%;" type="text" id="promptInput" placeholder="Prompt Input">
-                    <button style="background-color: #fff; color: #333; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; display: block; margin-left: auto; margin-right: auto;" id="fetchButton">OK</button>
+                    <input style="border-radius: 5px; padding: 5px 10px; border: 1px solid #ccc; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; width: 70%; outline: none;" type="text" id="promptInput" placeholder="Prompt Input">
+                    <button style="background-color: #fff; color: #333; border: 2px solid #333; padding: 10px 20px; border-radius: 25px; cursor: pointer; display: block; margin-left: auto; margin-right: auto; margin-bottom: 4rem; transition: all 0.3s;" id="fetchButton">OK</button>
         
                     <!-- Add div to display results -->
                     <div id="output" style="margin-top: 20px; position: relative;">
                         <!-- Rotating Loader Inside the Output Div -->
-                        <div id="loader" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;">
+                        <div id="loader" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none; z-index: 10;">
                             <div class="spinner" style="border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #fff; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
                         </div>
                     </div>
                 </div>
         
                 <style>
+                    /* Button Hover and Active Effects */                    
+                    #fetchButton:hover {
+                        background-color: #333;
+                        color: #fff;
+                        border-color: #fff;
+                    }
+        
+                    #fetchButton:active {
+                        transform: scale(0.95);
+                    }
+                    
+                    #fetchButton:focus {
+                        outline: none;
+                    }
+        
+                    /* Remove Focus Border Highlight for Input */
+                    #promptInput:focus {
+                        box-shadow: none;
+                    }
+        
+                    /* Spinner Animation */
                     @keyframes spin {
                         0% { transform: rotate(0deg); }
                         100% { transform: rotate(360deg); }
@@ -164,58 +185,66 @@
                 </style>
         
                 <script>
-                    document.getElementById('fetchButton').addEventListener('click', function() {
-                        // Display the loader
-                        document.getElementById('loader').style.display = 'block';
-                        
-                        // Get the user input
-                        const userInput = document.getElementById('promptInput').value;
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const fetchButton = document.getElementById('fetchButton');
+                        const promptInput = document.getElementById('promptInput');
+                        const loader = document.getElementById('loader');
+                        const outputDiv = document.getElementById('output');
+
+                        fetchButton.addEventListener('click', function() {
+                            // Display the loader before the API call
+                            loader.style.display = 'block';
         
-                        // Define the API endpoint and headers
-                        const url = "https://api.kakaobrain.com/v2/inference/karlo/t2i";
-                        const REST_API_KEY = "3d63ef7ba92fcf9b2184512e981580a2";
+                            // Define the API endpoint and headers
+                            const url = "https://api.kakaobrain.com/v2/inference/karlo/t2i";
+                            const REST_API_KEY = "3d63ef7ba92fcf9b2184512e981580a2";
         
-                        const headers = {
-                            "Authorization": `KakaoAK ${REST_API_KEY}`,
-                            "Content-Type": "application/json"
-                        };
+                            const headers = {
+                                "Authorization": `KakaoAK ${REST_API_KEY}`,
+                                "Content-Type": "application/json"
+                            };
         
-                        // Make the API call using Fetch with the user's input
-                        fetch(url, {
-                            method: 'POST',
-                            headers: headers,
-                            body: JSON.stringify({
-                                prompt: `${userInput}, Claude Monet, high quality`,
-                                negative_prompt: ""
+                            // Make the API call using Fetch with the user's input
+                            fetch(url, {
+                                method: 'POST',
+                                headers: headers,
+                                body: JSON.stringify({
+                                    prompt: `${promptInput.value}, Claude Monet, high quality`,
+                                    negative_prompt: ""
+                                })
                             })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            // Hide the loader
-                            document.getElementById('loader').style.display = 'none';
-                            
-                            // Extract image URL
-                            const imageUrl = data.images[0].image;
+                            .then(response => response.json())
+                            .then(data => {
+                                // Hide the loader
+                                loader.style.display = 'none';
+                                
+                                // Extract image URL
+                                const imageUrl = data.images[0].image;
         
-                            // Print the image to the screen
-                            const imgElement = document.createElement('img');
-                            imgElement.src = imageUrl;
-                            imgElement.alt = "Resulting image from API";
-                            imgElement.style.maxWidth = '300px';
+                                // Print the image to the screen
+                                const imgElement = document.createElement('img');
+                                imgElement.src = imageUrl;
+                                imgElement.alt = "Resulting image from API";
+                                imgElement.style.maxWidth = '300px';
         
-                            const outputDiv = document.getElementById('output');
-                            outputDiv.innerHTML = '';
-                            outputDiv.appendChild(imgElement);
-                        })
-                        .catch(error => {
-                            // Hide the loader in case of an error
-                            document.getElementById('loader').style.display = 'none';
-                            console.error('There was an error making the API call:', error);
+                                outputDiv.innerHTML = '';
+                                outputDiv.appendChild(imgElement);
+                            })
+                            .catch(error => {
+                                // Hide the loader in case of an error
+                                loader.style.display = 'none';
+                                console.error('There was an error making the API call:', error);
+                            });
                         });
                     });
                 </script>
             </div>
         </section>
+        
+        
+        
+        
+        
         
         
         
@@ -273,7 +302,7 @@
         </footer>
         <!-- Copyright Section-->
         <div class="copyright py-4 text-center text-white">
-            <div class="container"><small>Copyright &copy; Your Website 2023</small></div>
+            <div class="container"><small>Copyright &copy; pyeoun yuna 2023</small></div>
         </div>
         <!-- Features Modals-->
         <!-- Features Modal 1-->
@@ -308,166 +337,8 @@
                 </div>
             </div>
         </div>
-        <!-- Features Modal 2-->
-        <div class="Features-modal modal fade" id="FeaturesModal2" tabindex="-1" aria-labelledby="FeaturesModal2" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header border-0"><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                    <div class="modal-body text-center pb-5">
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <div class="col-lg-8">
-                                    <!-- Features Modal - Title-->
-                                    <h2 class="Features-modal-title text-secondary text-uppercase mb-0">Tasty Cake</h2>
-                                    <!-- Icon Divider-->
-                                    <div class="divider-custom">
-                                        <div class="divider-custom-line"></div>
-                                        <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-                                        <div class="divider-custom-line"></div>
-                                    </div>
-                                    <!-- Features Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/Features/cake.png" alt="..." />
-                                    <!-- Features Modal - Text-->
-                                    <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
-                                    <button class="btn btn-primary" data-bs-dismiss="modal">
-                                        <i class="fas fa-xmark fa-fw"></i>
-                                        Close Window
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Features Modal 3-->
-        <div class="Features-modal modal fade" id="FeaturesModal3" tabindex="-1" aria-labelledby="FeaturesModal3" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header border-0"><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                    <div class="modal-body text-center pb-5">
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <div class="col-lg-8">
-                                    <!-- Features Modal - Title-->
-                                    <h2 class="Features-modal-title text-secondary text-uppercase mb-0">Circus Tent</h2>
-                                    <!-- Icon Divider-->
-                                    <div class="divider-custom">
-                                        <div class="divider-custom-line"></div>
-                                        <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-                                        <div class="divider-custom-line"></div>
-                                    </div>
-                                    <!-- Features Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/Features/circus.png" alt="..." />
-                                    <!-- Features Modal - Text-->
-                                    <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
-                                    <button class="btn btn-primary" data-bs-dismiss="modal">
-                                        <i class="fas fa-xmark fa-fw"></i>
-                                        Close Window
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Features Modal 4-->
-        <div class="Features-modal modal fade" id="FeaturesModal4" tabindex="-1" aria-labelledby="FeaturesModal4" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header border-0"><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                    <div class="modal-body text-center pb-5">
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <div class="col-lg-8">
-                                    <!-- Features Modal - Title-->
-                                    <h2 class="Features-modal-title text-secondary text-uppercase mb-0">Controller</h2>
-                                    <!-- Icon Divider-->
-                                    <div class="divider-custom">
-                                        <div class="divider-custom-line"></div>
-                                        <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-                                        <div class="divider-custom-line"></div>
-                                    </div>
-                                    <!-- Features Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/Features/game.png" alt="..." />
-                                    <!-- Features Modal - Text-->
-                                    <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
-                                    <button class="btn btn-primary" data-bs-dismiss="modal">
-                                        <i class="fas fa-xmark fa-fw"></i>
-                                        Close Window
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Features Modal 5-->
-        <div class="Features-modal modal fade" id="FeaturesModal5" tabindex="-1" aria-labelledby="FeaturesModal5" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header border-0"><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                    <div class="modal-body text-center pb-5">
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <div class="col-lg-8">
-                                    <!-- Features Modal - Title-->
-                                    <h2 class="Features-modal-title text-secondary text-uppercase mb-0">Locked Safe</h2>
-                                    <!-- Icon Divider-->
-                                    <div class="divider-custom">
-                                        <div class="divider-custom-line"></div>
-                                        <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-                                        <div class="divider-custom-line"></div>
-                                    </div>
-                                    <!-- Features Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/Features/safe.png" alt="..." />
-                                    <!-- Features Modal - Text-->
-                                    <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
-                                    <button class="btn btn-primary" data-bs-dismiss="modal">
-                                        <i class="fas fa-xmark fa-fw"></i>
-                                        Close Window
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Features Modal 6-->
-        <div class="Features-modal modal fade" id="FeaturesModal6" tabindex="-1" aria-labelledby="FeaturesModal6" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header border-0"><button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button></div>
-                    <div class="modal-body text-center pb-5">
-                        <div class="container">
-                            <div class="row justify-content-center">
-                                <div class="col-lg-8">
-                                    <!-- Features Modal - Title-->
-                                    <h2 class="Features-modal-title text-secondary text-uppercase mb-0">Submarine</h2>
-                                    <!-- Icon Divider-->
-                                    <div class="divider-custom">
-                                        <div class="divider-custom-line"></div>
-                                        <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-                                        <div class="divider-custom-line"></div>
-                                    </div>
-                                    <!-- Features Modal - Image-->
-                                    <img class="img-fluid rounded mb-5" src="assets/img/Features/submarine.png" alt="..." />
-                                    <!-- Features Modal - Text-->
-                                    <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia neque assumenda ipsam nihil, molestias magnam, recusandae quos quis inventore quisquam velit asperiores, vitae? Reprehenderit soluta, eos quod consequuntur itaque. Nam.</p>
-                                    <button class="btn btn-primary" data-bs-dismiss="modal">
-                                        <i class="fas fa-xmark fa-fw"></i>
-                                        Close Window
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+        
         <!-- Bootstrap core JS-->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Core theme JS-->
