@@ -28,7 +28,7 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#portfolio">Portfolio</a></li>
-                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#about">About</a></li>
+                        <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#about">AI</a></li>
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#contact">Contact</a></li>
                         <li class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="#Other">Other</a></li>
                     </ul>
@@ -123,6 +123,9 @@
             </div>
         </section>
         <!-- About Section-->
+        
+
+        <!--AI-->
         <section class="page-section bg-primary text-white mb-0" id="about">
             <div class="container">
                 <!-- About Section Heading-->
@@ -133,20 +136,64 @@
                     <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
                     <div class="divider-custom-line"></div>
                 </div>
-                <!-- About Section Content-->
-                <div class="row">
-                    <div class="col-lg-4 ms-auto"><p class="lead">Freelancer is a free bootstrap theme created by Start Bootstrap. The download includes the complete source files including HTML, CSS, and JavaScript as well as optional SASS stylesheets for easy customization.</p></div>
-                    <div class="col-lg-4 me-auto"><p class="lead">You can create your own custom avatar for the masthead, change the icon in the dividers, and add your email address to the contact form to make it fully functional!</p></div>
+
+                <div class="text-center" style="gap: 20px; font-size: 0.9rem;"> <!-- 간격과 폰트 크기 수정 -->
+                    <label for="promptInput" style="display: block; margin-bottom: 15px;">아래 프롬포트에 그리고 싶은 그림을 입력하세요. </label>
+                    <input style="border-radius: 5px; padding: 5px 10px; border: 1px solid #ccc; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; width: 70%; align-items: center; justify-items: center;" type="text" id="promptInput" placeholder="프롬포트 입력">
+                    <button style="background-color: #fff; color: #333; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; display: block; margin-left: auto; margin-right: auto;" id="fetchButton">확인</button>
+                
+                    <!-- 결과를 출력할 div 추가 -->
+                    <div id="output" style="margin-top: 20px;"></div>
                 </div>
-                <!-- About Section Button-->
-                <div class="text-center mt-4">
-                    <a class="btn btn-xl btn-outline-light" href="https://startbootstrap.com/theme/freelancer/">
-                        <i class="fas fa-download me-2"></i>
-                        Free Download!
-                    </a>
-                </div>
+
+        
+
+                <script>
+                    document.getElementById('fetchButton').addEventListener('click', function() {
+                        // Get the user input
+                        const userInput = document.getElementById('promptInput').value;
+
+                        // Define the API endpoint and headers
+                        const url = "https://api.kakaobrain.com/v2/inference/karlo/t2i";
+                        const REST_API_KEY = "3d63ef7ba92fcf9b2184512e981580a2";
+
+                        const headers = {
+                            "Authorization": `KakaoAK ${REST_API_KEY}`,
+                            "Content-Type": "application/json"
+                        };
+
+                        // Make the API call using Fetch with the user's input
+                        fetch(url, {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify({
+                                prompt: `${userInput}, Claude Monet, high quality`,
+                                negative_prompt: ""
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            // 이미지 URL 추출
+                            const imageUrl = data.images[0].image;
+
+                            // 이미지를 화면에 출력
+                            const imgElement = document.createElement('img');
+                            imgElement.src = imageUrl;
+                            imgElement.alt = "Resulting image from API";
+                            imgElement.style.maxWidth = '300px'; // 또는 원하는 크기로 조정하세요.
+
+                            const outputDiv = document.getElementById('output');
+                            outputDiv.innerHTML = ''; // 기존 내용 삭제
+                            outputDiv.appendChild(imgElement);
+                        })
+                        .catch(error => {
+                            console.error('There was an error making the API call:', error);
+                        });
+                    });
+                </script>
             </div>
         </section>
+
         <!-- Contact Section-->
         <section class="page-section" id="contact">
             <div class="container">
